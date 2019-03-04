@@ -150,11 +150,14 @@ function git_commit() {
     git config user.email "admin@azuredevops.com"
     git config user.name "Automated Account"
 
-    echo "GIT COMMIT"
-    git commit -m "Updated k8s manifest files post commit: $COMMIT_MESSAGE"
-    retVal=$? && [ $retVal -ne 0 ] && exit $retVal
-    echo "GIT STATUS" 
-    git status
+    if [[ `git status --porcelain` ]]; then
+        echo "GIT COMMIT"
+        git commit -m "Updated k8s manifest files post commit: $COMMIT_MESSAGE"
+        retVal=$? && [ $retVal -ne 0 ] && exit $retVal
+    else
+        echo "NOTHING TO COMMIT"
+    fi
+    
     echo "GIT PULL" 
     git pull
 }
