@@ -1,8 +1,11 @@
 #!/bin/bash
 
 function init() {
-    cp -r * $HOME/
-    cd $HOME
+    echo "CHECKING FABRIKATE ENVIRONMENTS"
+    if [[ -z "$FAB_ENVS" ]]; then
+        echo 'FABRIKATE ENVIRONMENTS not specified in variable $FAB_ENVS'
+        exit 1
+    fi
 
     echo "CHECKING MANIFEST REPO URL"
     if [[ -z "$MANIFEST_REPO" ]]; then
@@ -15,6 +18,9 @@ function init() {
         echo "Please set env var ACCESS_TOKEN_SECRET for git host: $GIT_HOST"
         exit 1
     fi
+
+    cp -r * $HOME/
+    cd $HOME
 }
 
 # Initialize Helm
@@ -86,7 +92,13 @@ function install_fab() {
 
 # Run fab generate
 function fab_generate() {
-    fab generate prod --no-validation
+    #Parse and remove whitespace from comma delimited environment configurations
+    FAB_ENVS_ARRAY=($(echo "$FAB_ENVS" | tr ',' '\n'))
+    for i in "${FAB_ENVS_ARRAY[@]}"
+    do  
+        echo "RUNNING: fab generate $i --no-validation"
+        fab generate $i --no-validation
+    done
     echo "FAB GENERATE COMPLETED"
     
     set +e
@@ -126,8 +138,10 @@ function git_commit() {
     git checkout master
     echo "GIT STATUS"
     git status
+    echo "GIT REMOVE"
+    rm -rf ./*/
+    git rm *
     echo "COPY YAML FILES TO REPO DIRECTORY..."
-    rm -rf prod/
     cp -r $HOME/generated/* .
     echo "GIT ADD"
     git add *
