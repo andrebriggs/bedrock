@@ -63,7 +63,7 @@ We use an [Azure Pipelines Build](https://docs.microsoft.com/en-us/azure/devops/
 1. On a pull request (pre push to master) it executes a simple validation on proposed changes to infrastructure definition in the HLD repo.
 1. On a merge to master branch (post push to master) it executes a script to transform the high level definition to YAML using [Fabrikate](https://github.com/Microsoft/fabrikate) and pushes the generated results into the resource manifest repo.
 
-#### Create Build from your HLD Repo
+#### Create Build for your Definition Repo
 
 In Azure DevOps:
 1. Click on "Pipelines" on the left side to expand a submenu
@@ -81,24 +81,21 @@ In Azure DevOps:
     1. Azure DevOps Repo Example: ![SELECT REPO NAME](images/select-ado-repo.png)
     1. GitHub Repo Example:![SELECT REPO NAME](images/select-github-repo.png)
 
+7. Select the "Configuration as Code" template
+
+  ![SELECT REPO TYPE](images/configuration-as-code.png)
+
+8. Name the build and choose the `azure-pipeline.yml` file in the root of your high level definition repo.
+
 #### Configure Build
 
-At this point you will see `azure-pipeline.yml`, which should be contained in the HLD repo as part of step 1 above.
-
-1. Click the blue run button on the right side.
-
-2. You should see the output of an Azure Pipeline. Instead of waiting for the build to finish, click the ellipsis (...) in the upper right corner and choose "Edit pipeline".
-    1. ![edit pipeline](images/edit-pipeline.png)
-
-3. You will see the YAML contents again. Click on the ellipsis to the right of the blue "Run" button and choose "Pipeline settings".
-    1. ![pipeline settings](images/pipeline-settings.png)
-
-4. Click the "Variables" tab.
+1. Click the "Variables" tab.
 
 5. Add two variables that are used by the `build.sh` script referenced in `azure_pipeline.yml`:
     ![set variables](images/set-variables.png)
-    1. __Name__: `ACCESS_TOKEN` __Value__: Personal Access Token ([Azure DevOps](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) or [GitHub](https://www.help.github.com/articles/creating-a-personal-access-token-for-the-command-line)) for your repo type. Click the "lock" icon to the right of the value field to indicate this is a _secret_ per the screenshot above.
-    2.  __Name__: `MANIFEST_REPO` __Value__: The full URL to your manifest repo (i.e. https://github.com/andrebriggs/acme-company-yaml.git)
+    1. __Name__: `ACCESS_TOKEN` (_mandatory_) __Value__: Personal Access Token ([Azure DevOps](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) or [GitHub](https://www.help.github.com/articles/creating-a-personal-access-token-for-the-command-line)) for your repo type. Click the "lock" icon to the right of the value field to indicate this is a _secret_ per the screenshot above.
+    2.  __Name__: `MANIFEST_REPO` (_mandatory_) __Value__: The full URL to your manifest repo (i.e. https://github.com/andrebriggs/acme-company-yaml.git)
+    3. __Name__: `FAB_ENVS` (_optional_) __Value__: Comma-separated list of environments for which you have specified a config in your high level definition repo. If this variable is not created in the pipeline, the script will generate manifest files for a generic `prod` environment. For example, you may set this variable to `prod-east, prod-west` depending on your configuration.   
 
 6. Click "Save & Queue".
 

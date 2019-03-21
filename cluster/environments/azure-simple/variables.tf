@@ -44,6 +44,10 @@ variable "tenant_id" {
   type    = "string"
 }
 
+variable "gitops_path" {
+    type = "string"
+}
+
 variable "gitops_ssh_url" {
   type = "string"
 }
@@ -70,4 +74,10 @@ variable "tfstate_container_name" {
 variable "tfstate_key" {
   type    = "string"
   default = "bedrock.dev.tfstate"
+}
+
+variable "flux_recreate" {
+    description = "Make any change to this value to trigger the recreation of the flux execution script."
+    type = "string"
+    default = ""
 }
